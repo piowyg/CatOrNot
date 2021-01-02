@@ -1,6 +1,6 @@
 # CatOrNot
 
-Link wazny do bodajze 9.01.2019
+Link wazny do bodajze 9.01.2021
 https://easyupload.io/ot3rt6
 tutaj jest caly projekt wraz z plikiem exe w folderze dist
 
