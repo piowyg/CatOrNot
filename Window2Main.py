@@ -21,12 +21,11 @@ class Window(QWidget):
         self.height = 300
         self.imagePathGen = ""
         self.InitWindow()
-
+        self.canCheck = False
     def InitWindow(self):
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-
         vbox = QVBoxLayout()
         #ustawiamy przyciski w gui oraz pusty label ktory bedzie naszym obrazkiem oraz 2 pusty label ktory bedzie resultem czy jest kot
         self.btn1 = QPushButton("Open Image")
@@ -56,79 +55,91 @@ class Window(QWidget):
         self.show()
 
     def getImage(self):
-        self.newLabel.setText("")
+        self.newLabel.setText(" ")
         fname = QFileDialog.getOpenFileName()
         imagePath = fname[0]
-        #zapisujemy w klasie patha do zdjecia, aby isCat mogl z niej korzystac i pobrac odpowiednie zdjecie na calym kompie
-        self.imagePathGen = imagePath
-        # tutaj wyswietlamy obraz w labelu i zmieniami rozmiary zeby to ladnie wygladalo
-        pixmap = QPixmap(imagePath)
-        self.label.setPixmap(QPixmap(pixmap))
-        self.resize(pixmap.width(), pixmap.height())
+        print(imagePath)
+        if(".bmp" in imagePath) or (".png" in imagePath) or (".jpg" in imagePath) or (".jpeg" in imagePath):
+            #zapisujemy w klasie patha do zdjecia, aby isCat mogl z niej korzystac i pobrac odpowiednie zdjecie na calym kompie
+            self.imagePathGen = imagePath
+            # tutaj wyswietlamy obraz w labelu i zmieniami rozmiary zeby to ladnie wygladalo
+            pixmap = QPixmap(imagePath)
+            self.label.setPixmap(QPixmap(pixmap))
+            self.resize(pixmap.width(), pixmap.height())
+            self.canCheck = True
+        else:
+            self.newLabel.setText("Wybierz poprawny format pliku")
+            self.canCheck = False
 
     def checkImage(self):
-        self.newLabel.setText("")
-        start_time = time.time()
-        que = queue.Queue()
-        # otwieram liste 3 watkow, aby poszly wszystkie maszyny
-        threads_list = list()
-        # startuje watek z retina
-        t2 = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'Retina'))
-        t2.start()
-        threads_list.append(t2)
+        if(self.canCheck):
+            self.newLabel.setText(" ")
+            start_time = time.time()
+            que = queue.Queue()
+            # otwieram liste 3 watkow, aby poszly wszystkie maszyny
+            threads_list = list()
+            # startuje watek z retina
+            t2 = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'Retina'))
+            t2.start()
+            threads_list.append(t2)
 
-        for t in threads_list:
-            t.join()
+            for t in threads_list:
+                t.join()
 
-        checker = False
-        # jesli ktores zwrocilo cata to checker jest true i wykona sie if else ktory pokazuje napisy
-        while not que.empty():
-            result = que.get()
-            if (result == "cat"):
-                checker = True
-                break
+            checker = False
+            # jesli ktores zwrocilo cata to checker jest true i wykona sie if else ktory pokazuje napisy
+            while not que.empty():
+                result = que.get()
+                if (result == "cat"):
+                    checker = True
+                    break
 
-        if (checker == True):
-            print("Na zdjeciu jest kot")
-            self.newLabel.setText("Na zdjeciu jest kot!")
+            if (checker == True):
+                print("Na zdjeciu jest kot")
+                self.newLabel.setText("Na zdjeciu jest kot!")
+            else:
+                print("Na zdjeciu nie ma kota")
+                self.newLabel.setText("Na zdjeciu nie ma kota\n wyprobuj 'Advantage Check Image' dla pewnosci")
+            print("--- %s seconds ---" % (time.time() - start_time))
         else:
-            print("Na zdjeciu nie ma kota")
-            self.newLabel.setText("Na zdjeciu nie ma kota\n wyprobuj 'Advantage Check Image' dla pewnosci")
-        print("--- %s seconds ---" % (time.time() - start_time))
+            self.newLabel.setText("Wybierz zdjecie do sprawdzenia")
 
     def advantageCheck(self):
-        self.newLabel.setText("")
-        start_time = time.time()
-        # otwieram liste 3 watkow, aby poszly wszystkie maszyny
-        que = queue.Queue()
-        threads_list = list()
+        if(self.canCheck):
+            self.newLabel.setText(" ")
+            start_time = time.time()
+            # otwieram liste 3 watkow, aby poszly wszystkie maszyny
+            que = queue.Queue()
+            threads_list = list()
 
-        t = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'YOLO'))
-        t.start()
-        threads_list.append(t)
+            t = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'YOLO'))
+            t.start()
+            threads_list.append(t)
 
-        t3 = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'tinyYOLO'))
-        t3.start()
-        threads_list.append(t3)
+            t3 = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'tinyYOLO'))
+            t3.start()
+            threads_list.append(t3)
 
-        for t in threads_list:
-            t.join()
+            for t in threads_list:
+                t.join()
 
-        checker = False
-        # jesli ktores zwrocilo cata to checker jest true i wykona sie if else ktory pokazuje napisy
-        while not que.empty():
-            result = que.get()
-            if (result == "cat"):
-                checker = True
-                break
+            checker = False
+            # jesli ktores zwrocilo cata to checker jest true i wykona sie if else ktory pokazuje napisy
+            while not que.empty():
+                result = que.get()
+                if (result == "cat"):
+                    checker = True
+                    break
 
-        if (checker == True):
-            print("Na zdjeciu jest kot")
-            self.newLabel.setText("Na zdjeciu jest kot")
+            if (checker == True):
+                print("Na zdjeciu jest kot")
+                self.newLabel.setText("Na zdjeciu jest kot")
+            else:
+                print("Na zdjeciu nie ma kota")
+                self.newLabel.setText("Na zdjeciu nie ma kota")
+            print("--- %s seconds ---" % (time.time() - start_time))
         else:
-            print("Na zdjeciu nie ma kota")
-            self.newLabel.setText("Na zdjeciu nie ma kota")
-        print("--- %s seconds ---" % (time.time() - start_time))
+            self.newLabel.setText("Wybierz zdjecie do sprawdzenia")
 
     def isCat(self, name):
         execution_path = os.getcwd()  # os.getcwd() zwraca bieżący katalog roboczy
