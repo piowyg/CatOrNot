@@ -1,13 +1,13 @@
-from PyQt5 import QtGui, QtCore, Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QTextEdit, QHBoxLayout
-import sys
-from threading import Thread
-import queue
-import time
 import os
-from imageai.Detection import ObjectDetection
+import queue
+import sys
+import time
+from threading import Thread
 
-from PyQt5.QtGui import QPixmap, QPen, QFont
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtGui import QPixmap, QFont
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout
+from imageai.Detection import ObjectDetection
 
 
 class Window(QWidget):
@@ -22,12 +22,14 @@ class Window(QWidget):
         self.imagePathGen = ""
         self.InitWindow()
         self.canCheck = False
+
     def InitWindow(self):
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         vbox = QVBoxLayout()
-        #ustawiamy przyciski w gui oraz pusty label ktory bedzie naszym obrazkiem oraz 2 pusty label ktory bedzie resultem czy jest kot
+        # ustawiamy przyciski w gui oraz pusty label ktory bedzie naszym obrazkiem oraz 2 pusty label ktory bedzie
+        # resultem czy jest kot
         self.btn1 = QPushButton("Open Image")
         self.btn1.clicked.connect(self.getImage)
         self.btn2 = QPushButton("Check Image")
@@ -59,8 +61,9 @@ class Window(QWidget):
         fname = QFileDialog.getOpenFileName()
         imagePath = fname[0]
         print(imagePath)
-        if(".bmp" in imagePath) or (".png" in imagePath) or (".jpg" in imagePath) or (".jpeg" in imagePath):
-            #zapisujemy w klasie patha do zdjecia, aby isCat mogl z niej korzystac i pobrac odpowiednie zdjecie na calym kompie
+        if (".bmp" in imagePath) or (".png" in imagePath) or (".jpg" in imagePath) or (".jpeg" in imagePath):
+            # zapisujemy w klasie patha do zdjecia, aby isCat mogl z niej korzystac i pobrac odpowiednie zdjecie na
+            # calym kompie
             self.imagePathGen = imagePath
             # tutaj wyswietlamy obraz w labelu i zmieniami rozmiary zeby to ladnie wygladalo
             pixmap = QPixmap(imagePath)
@@ -74,7 +77,7 @@ class Window(QWidget):
             self.canCheck = False
 
     def checkImage(self):
-        if(self.canCheck):
+        if (self.canCheck):
             self.newLabel.setText(" ")
             start_time = time.time()
             que = queue.Queue()
@@ -92,11 +95,11 @@ class Window(QWidget):
             # jesli ktores zwrocilo cata to checker jest true i wykona sie if else ktory pokazuje napisy
             while not que.empty():
                 result = que.get()
-                if (result == "cat"):
+                if result == "cat":
                     checker = True
                     break
 
-            if (checker == True):
+            if checker == True:
                 print("Na zdjeciu jest kot")
                 self.newLabel.setStyleSheet("color: green;")
                 self.newLabel.setText("Cat is in the picture!")
@@ -110,7 +113,7 @@ class Window(QWidget):
             self.newLabel.setText("Enter an image to check")
 
     def advantageCheck(self):
-        if(self.canCheck):
+        if (self.canCheck):
             self.newLabel.setText(" ")
             start_time = time.time()
             # otwieram liste 3 watkow, aby poszly wszystkie maszyny
@@ -151,26 +154,31 @@ class Window(QWidget):
     def isCat(self, name):
         execution_path = os.getcwd()  # os.getcwd() zwraca bieżący katalog roboczy
         detector = ObjectDetection()
-        if (name == "YOLO"):
+        if name == "YOLO":
             detector.setModelTypeAsYOLOv3()
             detector.setModelPath(os.path.join(execution_path, "yolo.h5"))
-        elif (name == "Retina"):
+        elif name == "Retina":
             detector.setModelTypeAsRetinaNet()
             detector.setModelPath(os.path.join(execution_path, "resnet50_coco_best_v2.0.1.h5"))
-        elif (name == "tinyYOLO"):
+        elif name == "tinyYOLO":
             detector.setModelTypeAsTinyYOLOv3()
             detector.setModelPath(os.path.join(execution_path, "yolo-tiny.h5"))
         detector.loadModel()
         detections = detector.detectObjectsFromImage(
             input_image=os.path.join(execution_path, self.imagePathGen),
             output_image_path=os.path.join(execution_path,
-                                           "new.jpg"))  # wczytuje obrazek, dla którego chcemy wykryć znajdujące się na nim obiekty, tworzę nowy obrazek z zaznaczonymi na nim wykrytymi obiektami
-        for eachObject in detections:  # wyświetlam nazwy wykrytych obiektów oraz pewność ich wystąpienia (prawdopodobieńswto)
+                                           "new.jpg"))
+        # wczytuje obrazek, dla którego chcemy wykryć znajdujące się na nim obiekty, tworzę nowy obrazek z
+        # zaznaczonymi na nim wykrytymi obiektami
+        for eachObject in detections:
+            # wyświetlam nazwy wykrytych obiektów oraz pewność ich wystąpienia (prawdopodobieńswto)
             # print(eachObject["name"], " : ", eachObject["percentage_probability"])
-            if (eachObject["name"] == "cat" and eachObject["percentage_probability"] > 75):
+            if eachObject["name"] == "cat" and eachObject["percentage_probability"] > 75:
                 return 'cat'
 
 
-App = QApplication(sys.argv)
-window = Window()
-sys.exit(App.exec())
+if __name__ == '__main__':
+    App = QApplication(sys.argv)
+    window = Window()
+    sys.exit(App.exec())
+
