@@ -19,6 +19,8 @@ class Window(QWidget):
         self.left = 500
         self.width = 400
         self.height = 300
+        self.setMaximumWidth(1280)
+        self.setMaximumHeight(720)
         self.imagePathGen = ""
         self.InitWindow()
         self.canCheck = False
@@ -67,7 +69,9 @@ class Window(QWidget):
             self.imagePathGen = imagePath
             # tutaj wyswietlamy obraz w labelu i zmieniami rozmiary zeby to ladnie wygladalo
             pixmap = QPixmap(imagePath)
-            self.label.setPixmap(QPixmap(pixmap))
+            pixmap = pixmap.scaledToWidth(pixmap.width() if pixmap.width() <= self.maximumWidth() else self.maximumWidth())
+            pixmap = pixmap.scaledToHeight(pixmap.height() if pixmap.height() <= self.maximumHeight() else self.maximumHeight())
+            self.label.setPixmap(pixmap)
             self.resize(pixmap.width(), pixmap.height())
             self.canCheck = True
         else:
