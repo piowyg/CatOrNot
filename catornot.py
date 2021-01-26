@@ -160,9 +160,6 @@ class Window(QWidget):
         elif name == "Retina":
             detector.setModelTypeAsRetinaNet()
             detector.setModelPath(os.path.join(execution_path, "resnet50_coco_best_v2.0.1.h5"))
-        elif name == "tinyYOLO":
-            detector.setModelTypeAsTinyYOLOv3()
-            detector.setModelPath(os.path.join(execution_path, "yolo-tiny.h5"))
         detector.loadModel()
         detections = detector.detectObjectsFromImage(
             input_image=os.path.join(execution_path, self.imagePathGen),
