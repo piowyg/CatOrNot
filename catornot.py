@@ -85,7 +85,7 @@ class Window(QWidget):
             self.newLabel.setText(" ")
             start_time = time.time()
             que = queue.Queue()
-            # otwieram liste 3 watkow, aby poszly wszystkie maszyny
+            # otwieramy retine
             threads_list = list()
             # startuje watek z retina
             t2 = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'Retina'))
@@ -120,17 +120,13 @@ class Window(QWidget):
         if (self.canCheck):
             self.newLabel.setText(" ")
             start_time = time.time()
-            # otwieram liste 3 watkow, aby poszly wszystkie maszyny
+            # otwieram yolo
             que = queue.Queue()
             threads_list = list()
 
             t = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'YOLO'))
             t.start()
             threads_list.append(t)
-
-            t3 = Thread(target=lambda q, arg1: q.put(self.isCat(arg1)), args=(que, 'tinyYOLO'))
-            t3.start()
-            threads_list.append(t3)
 
             for t in threads_list:
                 t.join()
@@ -185,4 +181,3 @@ if __name__ == '__main__':
     App = QApplication(sys.argv)
     window = Window()
     sys.exit(App.exec())
-
